@@ -10,6 +10,7 @@ from tornado.web import Application
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import HTTPError
 from tornado.web import asynchronous
 from tornado import gen
 
@@ -28,12 +29,18 @@ class ProxyHandler(RequestHandler):
             'themes.twinsant.com': 'themes.googleusercontent.com',
         }
         url = 'http://%s%s' % (maps[self.request.host], self.request.uri)
-        response = yield gen.Task(http_client.fetch, url)
-        if self.request.host == 'fonts.twinsant.com':
-            html = response.body.replace('http://themes.googleusercontent.com', 'http://themes.twinsant.com')
-            self.write(html)
-        if self.request.host == 'themes.twinsant.com':
-            self.write(response.body)
+        logging.debug('Fetching %s ...' % url)
+        response = yield gen.Task(http_client.fetch, url, connect_timeout=60.0, request_timeout=60.0)
+        if response.code == 200:
+            content_type = response.headers.get('Content-Type')
+            if self.request.host == 'fonts.twinsant.com':
+                html = response.body.replace('http://themes.googleusercontent.com', 'http://themes.twinsant.com')
+                self.write(html)
+            if self.request.host == 'themes.twinsant.com':
+                self.write(response.body)
+            self.set_header('Content-Type', content_type)
+        else:
+            raise HTTPError(response.code)
         self.finish()
 
 handlers = [
