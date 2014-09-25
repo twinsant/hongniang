@@ -33,8 +33,7 @@ class ProxyHandler(RequestHandler):
         logging.debug('TODO: check referer %s' % referer)
         maps = {
             'fonts.twinsant.com': 'fonts.googleapis.com',
-            'fonts.twinsant.com': 'fonts.gstatic.com',
-            'themes.twinsant.com': 'themes.googleusercontent.com',
+            'themes.twinsant.com': 'fonts.gstatic.com',
         }
         url = 'http://%s%s' % (maps[self.request.host], self.request.uri)
 
@@ -62,7 +61,7 @@ class ProxyHandler(RequestHandler):
         content = ret[0]
         content_type = ret[1]
         if self.request.host == 'fonts.twinsant.com':
-            html = content.replace('http://themes.googleusercontent.com', 'http://themes.twinsant.com')
+            html = content.replace('http://fonts.gstatic.com', 'http://themes.twinsant.com')
             self.write(html)
         if self.request.host == 'themes.twinsant.com':
             self.write(content)
