@@ -33,6 +33,7 @@ class ProxyHandler(RequestHandler):
         logging.debug('TODO: check referer %s' % referer)
         maps = {
             'fonts.twinsant.com': 'fonts.googleapis.com',
+            'fonts.twinsant.com': 'fonts.gstatic.com',
             'themes.twinsant.com': 'themes.googleusercontent.com',
         }
         url = 'http://%s%s' % (maps[self.request.host], self.request.uri)
